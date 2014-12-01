@@ -1,0 +1,10 @@
+cd ~/tp/data/nifti
+fsl4.1-fslroi s12.nii.gz b0_AP_s12 3 1
+fsl4.1-fslroi s11.nii.gz b0_PA_s11 0 1
+fsl4.1-fslmerge -t AP_PA_b0 b0_AP_s12.nii.gz b0_PA_s11.nii.gz
+#(0043, 102c) [Effective echo spacing]            SS: 684
+fsl5.0-topup --imain=AP_PA_b0 --datain=acqparams.txt --config=b02b0.cnf --out=topup_AP_PA_b0
+fsl5.0-applytopup --imain=b0_AP_s12.nii.gz,b0_PA_s11.nii.gz --topup=topup_AP_PA_b0 --datain=acqparams.txt --inindex=1,2 --out=hifi_b0
+fsl5.0-bet hifi_b0 hifi_b0_brain -m -f 0.1
+fsl5.0-eddy --imain=s11 --mask=hifi_b0_brain_mask \
+--index=index.txt --acqp=acqparams.txt --bvecs=s11.bvec --bvals=s11.bval --fwhm=0 --topup=topup_AP_PA_b0 --flm=quadratic --out=eddy_unwarped_images
