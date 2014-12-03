@@ -64,21 +64,17 @@ FA = fractional_anisotropy(tenfit.evals)
 FA[np.isnan(FA)] = 0
 
 fa_img = nib.Nifti1Image(FA.astype(np.float32), img.get_affine())
-#nib.save(fa_img, 'tensor_fa.nii.gz')
+nib.save(fa_img, 'tensor_fa.nii.gz')
 
 evecs_img = nib.Nifti1Image(tenfit.evecs.astype(np.float32), img.get_affine())
-#nib.save(evecs_img, 'tensor_evecs.nii.gz')
+nib.save(evecs_img, 'tensor_evecs.nii.gz')
 
 MD1 = dti.mean_diffusivity(tenfit.evals)
-#nib.save(nib.Nifti1Image(MD1.astype(np.float32), img.get_affine()), 'tensors_md.nii.gz')
+nib.save(nib.Nifti1Image(MD1.astype(np.float32), img.get_affine()), 'tensors_md.nii.gz')
 
 FA = np.clip(FA, 0, 1)
 RGB = color_fa(FA, tenfit.evecs)
-#nib.save(nib.Nifti1Image(np.array(255 * RGB, 'uint8'), img.get_affine()), 'tensor_rgb.nii.gz')
-
-#######################################
-# Create snapshots of diffusion maps
-#######################################
+nib.save(nib.Nifti1Image(np.array(255 * RGB, 'uint8'), img.get_affine()), 'tensor_rgb.nii.gz')
 
 #######################################
 # Create snapshots of 
@@ -101,5 +97,5 @@ evecs = tenfit.evecs
 cfa = RGB
 cfa /= RGB.max()
 fvtk.add(ren, fvtk.tensor(evals, evecs, cfa, sphere))#2min
-fvtk.record(ren, n_frames=1, out_path='tensor_ellipsoids.png', size=(600, 600))
+fvtk.record(ren, n_frames=1, out_path='dipy_tensor_ellipsoids.png', size=(600, 600))
 
