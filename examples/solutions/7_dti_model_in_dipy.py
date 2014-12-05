@@ -53,13 +53,28 @@ data_small = data[20:50, 55:85, 38:39]
 #######################################
 
 tenmodel = dti.TensorModel(gtab)
-tenfit = tenmodel.fit(data_small)
+tenfit = tenmodel.fit(data_small) 
+ 
+fa_test = 3*3*tenfit.evals.var(axis=3)
+lambda1_volume = tenfit.evals[:,:,0,0]
+lambda2_volume = tenfit.evals[:,:,0,1]
+lambda3_volume = tenfit.evals[:,:,0,2]
+quadratic_mean = lambda1_volume*lambda1_volume
+quadratic_mean += lambda2_volume*lambda2_volume
+quadratic_mean += lambda3_volume*lambda3_volume
+quadratic_mean = 2*quadratic_mean
+fa_test_end = np.sqrt(fa_test.squeeze()/quadratic_mean)
 
 #######################################
 # Create diffusion maps
 #######################################
 print('Computing anisotropy measures (FA, MD, RGB)')
 FA = fractional_anisotropy(tenfit.evals)
+
+print fa_test_end.shape
+diff = fa_test_end - FA.squeeze()
+print diff.mean()
+print diff.var()
 
 FA[np.isnan(FA)] = 0
 
@@ -89,11 +104,13 @@ sphere = get_sphere('symmetric724')
 
 from dipy.viz import fvtk
 ren = fvtk.ren()
+#evals = tenfit.evals[13:43, 44:74, 28:29]
+#evecs = tenfit.evecs[13:43, 44:74, 28:29]
 evals = tenfit.evals
 evecs = tenfit.evecs
 
 cfa = RGB
 cfa /= RGB.max()
-fvtk.add(ren, fvtk.tensor(evals, evecs, cfa, sphere))
+fvtk.add(ren, fvtk.tensor(evals, evecs, cfa, sphere))#2min
 fvtk.record(ren, n_frames=1, out_path='dipy_tensor_ellipsoids.png', size=(600, 600))
 

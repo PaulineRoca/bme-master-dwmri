@@ -16,12 +16,10 @@ to experimental data and visualizing the results.
 import numpy as np
 # for loading imaging datasets
 import nibabel as nib
+from dipy.io import read_bvals_bvecs
+from dipy.core.gradients import gradient_table
 
-# dataset:
-from dipy.data import fetch_stanford_hardi
-fetch_stanford_hardi() #you only need to fetch once
-
-from dipy.data import read_stanford_hardi
+from os.path import expanduser, join
 
 #################################################
 # Choice of the local modeling
@@ -29,12 +27,24 @@ from dipy.data import read_stanford_hardi
 # for reconstruction with constrained spherical deconvolution
 import dipy.reconst.csdeconv as csd
 
-#################################################
-# Load Data 
-#################################################
 
-img, gtab = read_stanford_hardi()
+home = expanduser('~')
+standfordhardi_dirname = join(home,'tp_bme_dwi','data','stanford_hardi')
+fdwi = join(standfordhardi_dirname,'HARDI150.nii.gz')
+fbval = join(standfordhardi_dirname, 'HARDI150.bval')
+fbvec = join(standfordhardi_dirname,'HARDI150.bvec')
+
+#######################################
+# Load Data 
+#######################################
+
+img = nib.load(fdwi)
 data = img.get_data()
+
+print(data.shape)
+bvals, bvecs = read_bvals_bvecs(fbval, fbvec)
+gtab = gradient_table(bvals, bvecs)
+
 print('data.shape (%d, %d, %d, %d)' % data.shape)
 
 #################################################
